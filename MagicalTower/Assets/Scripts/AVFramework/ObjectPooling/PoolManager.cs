@@ -79,5 +79,10 @@ namespace AVFramework
 
             Destroy(gameObject);
         }
+
+        public List<PoolObject> GetActiveObjectList()
+        {
+            return usedObjectsList;
+        }
     }
 }

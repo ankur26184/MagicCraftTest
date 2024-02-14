@@ -5,25 +5,32 @@ using AVFramework;
 
 public class GameManager : Singleton<GameManager>
 {
-    [SerializeField] private GameStateManager gameStateManager;
+    [SerializeField] private GameStateManager m_GameStateManager;
 
     void Start()
     {
-        gameStateManager.ChangeStateTo(eGameStateType.SPLASH_SCREEN_STATE);
+        StartCoroutine(SetGamePlayState());
+    }
+
+    private IEnumerator SetGamePlayState()
+    {
+        yield return new WaitForEndOfFrame();
+
+        m_GameStateManager.ChangeStateTo(eGameStateType.GAME_PLAY_STATE);
     }
 
     public void ChangeStateTo(eGameStateType gameStateType)
     {
-        gameStateManager.ChangeStateTo(gameStateType);
+        m_GameStateManager.ChangeStateTo(gameStateType);
     }
 
     public GameState GetPreviousState()
     {
-        return (GameState)gameStateManager.GetPreviousState();
+        return (GameState)m_GameStateManager.GetPreviousState();
     }
 
     public GameState GetCurrentState()
     {
-        return (GameState)gameStateManager.GetCurrentState();
+        return (GameState)m_GameStateManager.GetCurrentState();
     }
 }

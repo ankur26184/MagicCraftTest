@@ -2,6 +2,7 @@ using AVFramework;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using AVFramework;
 
 [System.Serializable]
 public class EnemySpawConfig
@@ -9,11 +10,19 @@ public class EnemySpawConfig
     public float m_LevelTime;
     public float m_SpawnDelay;
 }
-public class AIGenerationManager : MonoBehaviour, IGamePlayStartObserver
+public class EnemyGenerationManager : Singleton<EnemyGenerationManager>, IGamePlayStartObserver
 {
+    [Header("Enter the values here to configure enemy spawn delay based on level")]
     [SerializeField] private List<EnemySpawConfig> m_EnemySpawnConfig;
-    [SerializeField] private float m_MinX;
-    [SerializeField] private float m_MaxX;
+
+    [Header("Assign Spawn point parent")]
+    [SerializeField] private Transform m_SpawnPointsParent;
+
+    [Header("Assign Enemy Object Pool Manager")]
+    [SerializeField] private PoolManager m_EnemyPoolManager;
+
+    [Header("Assign Target point")]
+    [SerializeField] private Transform m_TargetPoint;
 
     private float m_SpawnDelay;
     private float m_CurrentLevelTime;
@@ -51,6 +60,22 @@ public class AIGenerationManager : MonoBehaviour, IGamePlayStartObserver
         {
             //Create Enemy
             m_SpawnDelay = m_EnemySpawnConfig[m_LevelIndex].m_SpawnDelay;
+            SpawnEnemy();
+        }
+    }
+
+    private void SpawnEnemy()
+    {
+        
+        for(int i = 0; i < m_SpawnPointsParent.childCount; i++)
+        {
+            Enemy enemy = (Enemy)m_EnemyPoolManager.GetObject();
+            float randomXOffset = Random.Range(-2, 2);
+            float randomZOffset = Random.Range(-2, 2);
+            enemy.transform.position = m_SpawnPointsParent.GetChild(i).transform.position;
+            enemy.transform.position += new Vector3(randomXOffset, 0, randomZOffset);
+
+            enemy.SetTarget(m_TargetPoint);
         }
     }
 
@@ -69,5 +94,10 @@ public class AIGenerationManager : MonoBehaviour, IGamePlayStartObserver
     {
         if (GameStateEventsObserver.Instance != null)
             GameStateEventsObserver.Instance.UnregisterGamePlayStartObserver(this);
+    }
+
+    public List<PoolObject> GetActiveEnemyList()
+    {
+       return m_EnemyPoolManager.GetActiveObjectList();
     }
 }
